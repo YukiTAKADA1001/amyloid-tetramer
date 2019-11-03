@@ -95,31 +95,47 @@ do
         done
 
 
-        # Configure system using VMD
-        # Move peptide
-        vmd -dispdev none -e ${PROJ_DIR}/${PROGRAMS_DIRNAME}/config_system.tcl > vmd.log
-        # Integrate sigle peptide files into one pdb.
-        if [ -e initial.pdb ]; then
-            rm initial.pdb
-        fi
-        for f in amyloid_transed*.pdb
+        while :
         do
-            sed -e 1d -e 's/END/TER/g' $f >> initial.pdb
+            ####
+            # Configure system using VMD
+            # Move peptide
+            vmd -dispdev none -e ${PROJ_DIR}/${PROGRAMS_DIRNAME}/config_system.tcl > vmd.log
+            # Integrate sigle peptide files into one pdb.
+            if [ -e initial.pdb ]; then
+                rm initial.pdb
+            fi
+            for f in amyloid_transed*.pdb
+            do
+                sed -e 1d -e 's/END/TER/g' $f >> initial.pdb
+            done
+            echo "END" >> initial.pdb
+
+
+            # Add water and ions using Amber tleap
+            tleap -f ${PROJ_DIR}/${PROGRAMS_DIRNAME}/add_solvent_ion_${CONDITION_DIRNAME}.in > /dev/null
+
+
+            # Add chain ID to distinguish peptides
+            python ${PROJ_DIR}/${PROGRAMS_DIRNAME}/add_chnid.py >initial_wat_ion.pdb
+
+
+            # Check if distances between peptides are not too close.
+            # If OK, this python script returns status 0, and exit loop.
+            python ${PROJ_DIR}/${PROGRAMS_DIRNAME}/dist_check.py
+            dist_check=$?
+            if test $dist_check -eq 0; then
+                break
+            fi
+            echo ${sim_dirname}"   Some peptide pairs are too close. Configuring them agein..."
         done
-        echo "END" >> initial.pdb
-
-
-        # Add water and ions using Amber tleap
-        tleap -f ${PROJ_DIR}/${PROGRAMS_DIRNAME}/add_solvent_ion_${CONDITION_DIRNAME}.in > /dev/null
-
-
-        # Add chain ID to distinguish peptides
-        python ${PROJ_DIR}/${PROGRAMS_DIRNAME}/add_chnid.py >initial_wat_ion.pdb
 
 
         # Equil the system and make production run
-        # cd ../
-        # jsub
+        mv initilal_wat_ion.prmtop initial_wat_ion.inpcrd ../
+        cd ../
+        jsub -q PN ${PROJ_DIR}/${PROGRAMS_DIRNAME}/production.sh
+
 
         echo ${sim_dirname}"   done!"
     } &
