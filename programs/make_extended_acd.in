@@ -1,0 +1,12 @@
+source leaprc.protein.ff14SB
+
+set default PBradii mbondi3
+
+pep = sequence{NASP ALA GLU PHE ARG HIP ASP SER GLY TYR    GLU VAL HIP HIP GLN LYS LEU VAL PHE PHE    ALA GLU ASP VAL GLY SER ASN LYS GLY ALA    ILE ILE GLY LEU MET VAL GLY GLY VAL VAL    ILE CALA}
+
+check pep
+
+saveamberparm pep straight.prmtop straight.inpcrd
+savepdb pep straight.pdb
+
+quit

@@ -1,0 +1,21 @@
+# tleap script for neutral condition
+#
+source leaprc.protein.ff14SB
+source leaprc.water.tip3p
+loadAmberParams frcmod.ionsjc_tip3p
+set default PBradii mbondi3
+
+# 
+peps = loadpdb initial.pdb
+
+# 
+solvateOct peps TIP3PBOX 10.0
+
+#
+addIonsRand peps Na+ 15 Cl- 3
+
+#
+saveamberparm peps initial_wat_ion.prmtop initial_wat_ion.inpcrd
+savepdb peps initial_wat_ion.pdb
+
+quit
