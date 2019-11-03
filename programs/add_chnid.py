@@ -2,14 +2,14 @@
 import string
 
 
-PATH_ORIG = 'initial_wat_ion.pdb'
+PDB_FILE = 'initial_wat_ion.pdb'
 
 
-with open(PATH_ORIG) as f:
+with open(PDB_FILE) as f:
     lines = [l.strip() for l in f.readlines()]
 
 
-newlines = []
+newlines=[]
 pep_label = 0
 for line in lines:
     newline = line
@@ -20,6 +20,7 @@ for line in lines:
         pep_label += 1
 
     newlines.append(newline)
-    print(newline)
-        
 
+
+with open(PDB_FILE, mode='w') as f:
+    f.write('\n'.join(newlines))
