@@ -117,7 +117,7 @@ do
 
 
             # Add chain ID to distinguish peptides
-            python ${PROJ_DIR}/${PROGRAMS_DIRNAME}/add_chnid.py >initial_wat_ion.pdb
+            python ${PROJ_DIR}/${PROGRAMS_DIRNAME}/add_chnid.py
 
 
             # Check if distances between peptides are not too close.
@@ -132,9 +132,9 @@ do
 
 
         # Equil the system and make production run
-        mv initilal_wat_ion.prmtop initial_wat_ion.inpcrd ../
+        mv initial_wat_ion.prmtop initial_wat_ion.inpcrd initial_wat_ion.pdb ../
         cd ../
-        jsub -q PN ${PROJ_DIR}/${PROGRAMS_DIRNAME}/production.sh
+        #jsub -q PN ${PROJ_DIR}/${PROGRAMS_DIRNAME}/production.sh
 
 
         echo ${sim_dirname}"   done!"
