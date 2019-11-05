@@ -1,9 +1,12 @@
 #!/bin/bash -eu
 
 
+# Main work space
 readonly HOME_DIR=/home/users/bip
 readonly PROJ_DIR=${HOME_DIR}/simulation4
 readonly PROGRAMS_DIRNAME=programs
+# Big data space (trajectory is main)
+readonly SAVE_DIR=/save/users/bip
 
 
 function usage() {
@@ -60,7 +63,7 @@ do
     cd $CONDITION_DIRNAME
 
 
-    # Make new directory for new simulation.
+    # Make new directory for new simulation. (Home and Save area)
     sim_dirname=simulation_`date +%Y%m%d_%H%M%S`
     mkdir $sim_dirname && cd $sim_dirname
     mkdir prepare && cd prepare
@@ -134,7 +137,12 @@ do
         # Equil the system and make production run
         mv initial_wat_ion.prmtop initial_wat_ion.inpcrd initial_wat_ion.pdb ../
         cd ../
-        #jsub -q PN ${PROJ_DIR}/${PROGRAMS_DIRNAME}/production.sh
+        # Trajectory data written in save area using symbolic link.
+        traj_dir=${SAVE_DIR}/simulation4/${CONDITION_DIRNAME}/${sim_dirname}
+        mkdir $traj_dir
+        touch ${traj_dir}/traj.dcd
+        ln -s ${traj_dir}/traj.dcd traj.dcd
+        jsub -q PN ${PROJ_DIR}/${PROGRAMS_DIRNAME}/production.sh
 
 
         echo ${sim_dirname}"   done!"
