@@ -20,11 +20,21 @@ RESTART_FILENAME = 'restart.xml'
 # System settings
 prmtop = AmberPrmtopFile(PRMTOP_FILENAME)
 inpcrd = AmberInpcrdFile(INPCRD_FILENAME)
-system = prmtop.createSystem(nonbondedMethod=PME,
-                             nonbondedCutoff=12*angstroms,
-                             constraints=HBonds)
-system.addForce(MonteCarloBarostat(1*bar, 310*kelvin))
+system_params = {
+        'nonbondedMethod': PME,
+        'nonbondedCutoff': 12*angstroms,
+        'constraints': HBonds
+}
+system = prmtop.createSystem(**system_params)
+
+# Set random seeds const to reproduce simulation later.
+# Pressure coupling
+barostat = MonteCarloBarostat(1*bar, 310*kelvin)
+barostat.setRandomNumberSeed(seed=42)
+system.addForce(barostat)
+# Temperature coupling
 integrator = LangevinIntegrator(310*kelvin, 1/picosecond, 2*femtoseconds)
+integrator.setRandomNumberSeed(seed=42)
 
 simulation = Simulation(prmtop.topology, system, integrator)
 simulation.context.setPositions(inpcrd.positions)
@@ -45,19 +55,23 @@ simulation.step(EQUIL_STEP)
 # Trajectory file setting
 simulation.reporters.append(DCDReporter(TRAJ_FILENAME, RECORD_STEP))
 # State data file setting
-simulation.reporters.append(StateDataReporter(STATE_FILENAME,
-                                              RECORD_STEP,
-                                              step=True,
-                                              time=True,
-                                              progress=True,
-                                              remainingTime=True,
-                                              potentialEnergy=True,
-                                              kineticEnergy=True,
-                                              totalEnergy=True,
-                                              temperature=True,
-                                              speed=True,
-                                              totalSteps=PRODUCTION_STEP,
-                                              separator='▸----'))
+reporter_params = {
+        'step': True,
+        'time': True,
+        'progress': True,
+        'remainingTime': True,
+        'potentialEnergy': True,
+        'kineticEnergy': True,
+        'totalEnergy': True,
+        'temperature': True,
+        'volume': True,
+        'density': True,
+        'speed': True,
+        'totalSteps': PRODUCTION_STEP,
+        'separator': ','
+}
+simulation.reporters.append( StateDataReporter(STATE_FILENAME, RECORD_STEP, **reporter_params) )
+# Production run
 simulation.step(PRODUCTION_STEP)
 
 
