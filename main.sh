@@ -1,12 +1,9 @@
 #!/bin/bash -eu
 
-
-# Main work space
 readonly HOME_DIR=/home/users/bip
-readonly PROJ_DIR=${HOME_DIR}/simulation4
-readonly PROGRAMS_DIRNAME=programs
-# Big data space (trajectory is main)
 readonly SAVE_DIR=/save/users/bip
+readonly PROJ_DIR=${SAVE_DIR}/simulation4
+readonly PROGRAMS_DIRNAME=programs
 
 
 function usage() {
@@ -55,6 +52,8 @@ fi
 
 
 # Main operation
+# PROJ_DIR以下は完全に閉じたディレクトリ構造（いかなる絶対パスも参照しない）
+# のため、大元のPROJ_DIRなどの絶対パスを変更しても問題なし。
 cd $PROJ_DIR
 echo "Preparing for production run..."
 
@@ -83,7 +82,8 @@ do
 
         # Wait until equil simulation finishes.
         # stdout file is the finish flag.
-        while [ ! -e equil_only_pep.sh.o${jobid} ]; do
+        while [ ! -e equil_only_pep.sh.o${jobid} ]
+        do
             sleep 10s
         done
         # Modify atom index (N-terminus H -> H1)
@@ -134,14 +134,9 @@ do
         done
 
 
-        # Equil the system and make production run
+        # Equil the system and execute production run
         mv initial_wat_ion.prmtop initial_wat_ion.inpcrd initial_wat_ion.pdb ../
         cd ../
-        # Trajectory data written in save area using symbolic link.
-        traj_dir=${SAVE_DIR}/simulation4/${CONDITION_DIRNAME}/${sim_dirname}
-        mkdir $traj_dir
-        touch ${traj_dir}/traj.dcd
-        ln -s ${traj_dir}/traj.dcd traj.dcd
         jsub -q PN ${PROJ_DIR}/${PROGRAMS_DIRNAME}/production.sh
 
 

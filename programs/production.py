@@ -8,9 +8,9 @@ from simtk.unit import *
 PRMTOP_FILENAME = 'initial_wat_ion.prmtop'
 INPCRD_FILENAME = 'initial_wat_ion.inpcrd'
 # Simulation parameters
-EQUIL_STEP = 500e3          # 1ns
-PRODUCTION_STEP = 500e4     # 10ns
-RECORD_STEP = 50e3          # every 100ps
+EQUIL_STEP = int(500e3)          # 1ns
+PRODUCTION_STEP = int(5e6)       # 10ns
+RECORD_STEP = int(50e3)          # every 100ps
 # Output
 TRAJ_FILENAME = 'traj.dcd'
 STATE_FILENAME = 'state.csv'
@@ -30,6 +30,10 @@ simulation = Simulation(prmtop.topology, system, integrator)
 simulation.context.setPositions(inpcrd.positions)
 if inpcrd.boxVectors is not None:
     simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
+
+
+# Energy minimization
+simulation.minimizeEnergy()
 
 
 # Heating and equilibration of solvent 

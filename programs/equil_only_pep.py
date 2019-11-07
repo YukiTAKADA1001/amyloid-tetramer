@@ -7,15 +7,19 @@ from simtk.unit import *
 
 
 ## parameters
-allstep = 2500000
+EQUIL_STEP = 2500000
 
 
 def calcSinglePep(label):
     ## 系の設定
     prmtop = AmberPrmtopFile('straight.prmtop')
     inpcrd = AmberInpcrdFile('straight.inpcrd')
-    system = prmtop.createSystem(implicitSolvent=GBn2,
-                 nonbondedMethod=NoCutoff, constraints=HBonds)
+    system_params = {
+            'implicitSolvent': GBn2,
+            'nonbondedMethod': NoCutoff,
+            'constraints': HBonds
+    }
+    system = prmtop.createSystem(**system_params)
     integrator = LangevinIntegrator(310*kelvin, 1/picosecond, 2*femtoseconds)
     simulation = Simulation(prmtop.topology, system, integrator)
     simulation.context.setPositions(inpcrd.positions)
@@ -24,11 +28,21 @@ def calcSinglePep(label):
     simulation.minimizeEnergy()
     
     ## 平衡化MD計算(1ns)
-    simulation.reporters.append(StateDataReporter('data.tsv', 5000, step=True,
-            time=True, progress=True, remainingTime=True, potentialEnergy=True,
-            kineticEnergy=True, totalEnergy=True, temperature=True, speed=True,
-            totalSteps=allstep, separator='	'))
-    simulation.step(allstep)
+    reporter_params = {
+            'step': True,
+            'time': True,
+            'progress': True,
+            'remainingTime': True,
+            'potentialEnergy': True,
+            'kineticEnergy': True,
+            'totalEnergy': True,
+            'temperature': True,
+            'speed': True,
+            'totalSteps': EQUIL_STEP,
+            'separator': '	'
+    }
+    simulation.reporters.append( StateDataReporter('data.tsv', 5000, **reporter_params) )
+    simulation.step(EQUIL_STEP)
 
     ## Saving result as PDB file format
     positions = simulation.context.getState(getPositions=True).getPositions()
@@ -36,6 +50,5 @@ def calcSinglePep(label):
     PDBFile.writeFile(simulation.topology, positions, open(filename, 'w'))
     
 
-print(os.getcwd())
 for label in range(4):
     calcSinglePep(label)
