@@ -8,8 +8,7 @@ from simtk.unit import *
 PRMTOP_FILENAME = 'initial_wat_ion.prmtop'
 INPCRD_FILENAME = 'initial_wat_ion.inpcrd'
 # Simulation parameters
-EQUIL_STEP = int(500e3)          # 1ns
-PRODUCTION_STEP = int(5e6)       # 10ns
+PRODUCTION_STEP = int(250e6)     # 500ns
 RECORD_STEP = int(50e3)          # every 100ps
 # Output
 TRAJ_FILENAME = 'traj.dcd'
@@ -46,12 +45,6 @@ if inpcrd.boxVectors is not None:
 simulation.minimizeEnergy()
 
 
-# Heating and equilibration of solvent 
-simulation.context.setVelocitiesToTemperature(310*kelvin)
-simulation.step(EQUIL_STEP)
-
-
-# Production run
 # Trajectory file setting
 simulation.reporters.append(DCDReporter(TRAJ_FILENAME, RECORD_STEP))
 # State data file setting
@@ -71,7 +64,15 @@ reporter_params = {
         'separator': ','
 }
 simulation.reporters.append( StateDataReporter(STATE_FILENAME, RECORD_STEP, **reporter_params) )
+
+
+# Heating and equilibration of solvent 
+simulation.context.setVelocitiesToTemperature(310*kelvin, randomSeed=42)
+
+
 # Production run
+# Solvent equilibration step is contained in production run steps.
+# These steps are not used in analysis (after aggregation will be used), so that's not the issue,'
 simulation.step(PRODUCTION_STEP)
 
 

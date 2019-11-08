@@ -1,6 +1,6 @@
 #!/bin/sh
 #PBS -l select=1:ncpus=1:mpiprocs=1:ompthreads=1:jobtype=gpu:ngpus=1
-#PBS -l walltime=12:00:00
+#PBS -l walltime=168:00:00
 
 cd $PBS_O_WORKDIR
 

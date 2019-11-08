@@ -7,7 +7,7 @@ from simtk.unit import *
 
 
 ## parameters
-EQUIL_STEP = 2500000
+EQUIL_STEP = 2500000   # 5ns
 
 
 def calcSinglePep(label):
