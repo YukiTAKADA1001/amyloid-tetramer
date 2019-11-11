@@ -67,7 +67,7 @@ simulation.reporters.append( StateDataReporter(STATE_FILENAME, RECORD_STEP, **re
 
 
 # Heating and equilibration of solvent 
-simulation.context.setVelocitiesToTemperature(310*kelvin, randomSeed=42)
+simulation.context.setVelocitiesToTemperature(310*kelvin, 42)
 
 
 # Production run
