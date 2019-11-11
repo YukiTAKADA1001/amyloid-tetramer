@@ -125,11 +125,15 @@ do
 
             # Check if distances between peptides are not too close.
             # If OK, this python script returns status 0, and exit loop.
+            # Temporary invalid -e option to use error code 1 as loop continue
+            # flag ($dist_check).
+            set +e
             python ${PROJ_DIR}/${PROGRAMS_DIRNAME}/dist_check.py
             dist_check=$?
             if test $dist_check -eq 0; then
                 break
             fi
+            set -e
             echo ${sim_dirname}"   Some peptide pairs are too close. Configuring them agein..."
         done
 
